@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flores Amarillas Especiales ✨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;0,800;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-handwriting {
+            font-family: 'Caveat', cursive;
+        }
+
+        .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Degradado de fondo mágico estilo atardecer nocturno */
+        .bg-magic-gradient {
+            background: radial-gradient(circle at 50% 20%, #2a1836 0%, #130a1c 60%, #08030c 100%);
+        }
+
+        /* Glassmorphism mejorado */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 223, 93, 0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 215, 0, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(20, 10, 30, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 35px rgba(255, 215, 0, 0.15);
+        }
+
+        /* Animación de pulso resplandeciente */
+        @keyframes pulseGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+                transform: scale(1);
+            }
+            50% {
+                filter: drop-shadow(0 0 30px rgba(255, 223, 93, 0.9));
+                transform: scale(1.03);
+            }
+        }
+
+        .glow-effect {
+            animation: pulseGlow 4s ease-in-out infinite;
+        }
+
+        /* Ocultar barra de desplazamiento */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-magic-gradient text-white min-h-screen w-screen relative overflow-hidden flex flex-col justify-between select-none">
+
+    <!-- Canvas de fondo para partículas, lluvia de pétalos y flores interactivas -->
+    <canvas id="flowerCanvas" class="fixed inset-0 w-full h-full pointer-events-auto z-10"></canvas>
+
+    <!-- Encabezado y Título Mágico -->
+    <header class="relative z-20 pt-8 px-4 text-center pointer-events-none">
+        
+        <h1 class="font-serif-title text-4xl sm:text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-400 to-amber-500 drop-shadow-[0_4px_10px_rgba(255,215,0,0.3)] tracking-tight">
+            Flores Amarillas
+        </h1>
+        <p class="mt-2 text-yellow-100/80 text-sm sm:text-lg max-w-md mx-auto font-light">
+            Para iluminar tu día tan brillante como tú lo haces siempre.
+        </p>
+    </header>
+
+    <!-- Botones de Acción Flotantes en la parte inferior -->
+    <div class="fixed bottom-6 left-0 right-0 z-30 flex flex-col sm:flex-row items-center justify-center gap-3 px-4 pointer-events-auto">
+        <!-- Botón para abrir la Carta -->
+        <button id="openCardBtn" class="group relative px-6 py-3.5 rounded-full bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 text-slate-950 font-bold text-base sm:text-lg shadow-[0_0_25px_rgba(255,215,0,0.5)] hover:shadow-[0_0_35px_rgba(255,215,0,0.8)] transform hover:-translate-y-1 active:translate-y-0 transition-all duration-300 flex items-center gap-2">
+            <i class="fa-solid font-bold fa-envelope text-slate-900 group-hover:rotate-12 transition-transform"></i>
+            <span>Abre tu Carta Secreta ✉️</span>
+        </button>
+
+        <!-- Botón de Sonido / Ambiente -->
+        
+    </div>
+
+    <!-- Pista interactiva para tocar la pantalla -->
+    <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 text-center pointer-events-none opacity-80 animate-pulse">
+        <p class="text-xs sm:text-sm text-yellow-200/60 uppercase tracking-widest font-semibold bg-black/30 px-4 py-2 rounded-full border border-yellow-500/20 backdrop-blur-sm">
+            ✨ Toca o haz clic en cualquier lugar para plantar una flor ✨
+        </p>
+    </div>
+
+    <!-- Modal de Carta / Mensaje Especial -->
+    <div id="cardModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-500">
+        <div id="cardContent" class="glass-card relative w-full max-w-lg rounded-3xl p-6 sm:p-8 text-center transform scale-90 transition-transform duration-500 max-h-[90vh] overflow-y-auto">
+            <!-- Botón Cerrar -->
+            <button id="closeCardBtn" class="absolute top-4 right-4 text-yellow-400/70 hover:text-yellow-300 text-xl w-10 h-10 rounded-full flex items-center justify-center hover:bg-yellow-500/10 transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Adorno de Flor en la Carta -->
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center text-yellow-400 text-3xl shadow-[0_0_20px_rgba(255,215,0,0.3)]">
+                🌻
+            </div>
+
+            <h2 class="font-serif-title text-2xl sm:text-3xl text-yellow-300 font-bold mb-1">
+                ¡Para una Amiga Increíble!
+            </h2>
+
+            <div class="text-left text-yellow-100/90 text-base sm:text-lg space-y-4 font-handwriting leading-relaxed text-xl sm:text-2xl border-y border-yellow-500/20 py-4 my-2">
+                <p>
+                    ¡Hola! para que no estes esperando unas flores de un hombre promedio, el hombre definitivo (o sea yo) te regalo flores amarillas virtuales
+                </p>
+                
+                <p class="text-right font-bold text-yellow-300">
+                    te quiero corazon3
+                </p>
+            </div>
+
+            <div class="mt-6 flex justify-center">
+                <button id="closeModalAction" class="px-6 py-2.5 rounded-full bg-yellow-400/20 hover:bg-yellow-400/30 border border-yellow-400/40 text-yellow-200 text-sm font-semibold transition-all">
+                    Cerrar nashee
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('flowerCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let petals = [];
+        let fireflies = [];
+        let interactiveFlowers = [];
+        let centerBouquet = [];
+
+        // Ajustar tamaño de canvas fluido
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Petal {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = -20 - Math.random() * 100;
+                this.size = 8 + Math.random() * 12;
+                this.speedY = 1 + Math.random() * 2.5;
+                this.speedX = Math.sin(Math.random() * Math.PI) * 1.5;
+                this.angle = Math.random() * Math.PI * 2;
+                this.angularVelocity = (Math.random() - 0.5) * 0.05;
+                this.color = ['#FFE033', '#FFD700', '#FFC107', '#FFEA00', '#FFF176'][Math.floor(Math.random() * 5)];
+                this.opacity = 0.6 + Math.random() * 0.4;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += Math.sin(this.y * 0.01) + this.speedX * 0.5;
+                this.angle += this.angularVelocity;
+
+                if (this.y > height + 20) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+
+                // Forma de pétalo suave
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(-this.size / 2, -this.size, -this.size, this.size / 3, 0, this.size);
+                ctx.bezierCurveTo(this.size, this.size / 3, this.size / 2, -this.size, 0, 0);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        class Firefly {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = 1 + Math.random() * 3;
+                this.speedX = (Math.random() - 0.5) * 0.8;
+                this.speedY = (Math.random() - 0.5) * 0.8;
+                this.alpha = Math.random();
+                this.alphaSpeed = 0.01 + Math.random() * 0.02;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x < 0 || this.x > width) this.speedX *= -1;
+                if (this.y < 0 || this.y > height) this.speedY *= -1;
+
+                this.alpha += this.alphaSpeed;
+                if (this.alpha > 1 || this.alpha < 0.1) this.alphaSpeed *= -1;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, Math.min(1, this.alpha));
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#FFD700';
+                ctx.fillStyle = '#FFF59D';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class InteractiveFlower {
+            constructor(x, y, isStatic = false, targetScale = 1) {
+                this.x = x;
+                this.y = y;
+                this.scale = 0;
+                this.targetScale = targetScale * (0.7 + Math.random() * 0.6);
+                this.growthSpeed = 0.03 + Math.random() * 0.02;
+                this.petalsCount = 12 + Math.floor(Math.random() * 6);
+                this.petalColor = ['#FFD700', '#FFEA00', '#FFC107', '#FFB300'][Math.floor(Math.random() * 4)];
+                this.centerColor = '#3E2723';
+                this.rotation = Math.random() * Math.PI * 2;
+                this.isStatic = isStatic;
+                this.stemHeight = 80 + Math.random() * 60;
+                this.sparks = [];
+
+                // Generar destellos al brotar
+                for (let i = 0; i < 12; i++) {
+                    const angle = (Math.PI * 2 / 12) * i;
+                    const speed = 2 + Math.random() * 3;
+                    this.sparks.push({
+                        x: 0, y: 0,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        life: 1,
+                        size: 2 + Math.random() * 3
+                    });
+                }
+            }
+
+            update() {
+                if (this.scale < this.targetScale) {
+                    this.scale += this.growthSpeed;
+                }
+
+                // Actualizar destellos
+                this.sparks.forEach(s => {
+                    s.x += s.vx;
+                    s.y += s.vy;
+                    s.life -= 0.03;
+                });
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                // Dibujar Tallo
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(-10, this.stemHeight / 2, 0, this.stemHeight);
+                ctx.strokeStyle = '#4CAF50';
+                ctx.lineWidth = 4 * this.scale;
+                ctx.stroke();
+
+                // Dibujar Hojas verdes
+                ctx.fillStyle = '#388E3C';
+                ctx.beginPath();
+                ctx.ellipse(-10 * this.scale, this.stemHeight * 0.6, 12 * this.scale, 6 * this.scale, -Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(10 * this.scale, this.stemHeight * 0.4, 12 * this.scale, 6 * this.scale, Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Dibujar pétalos de la flor
+                ctx.rotate(this.rotation);
+                const currentRadius = 35 * this.scale;
+
+                for (let i = 0; i < this.petalsCount; i++) {
+                    const angle = (Math.PI * 2 / this.petalsCount) * i;
+                    ctx.save();
+                    ctx.rotate(angle);
+                    ctx.fillStyle = this.petalColor;
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.quadraticCurveTo(currentRadius * 0.5, currentRadius * 0.4, 0, currentRadius);
+                    ctx.quadraticCurveTo(-currentRadius * 0.5, currentRadius * 0.4, 0, 0);
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Centro del Girasol
+                ctx.beginPath();
+                ctx.arc(0, 0, currentRadius * 0.35, 0, Math.PI * 2);
+                ctx.fillStyle = this.centerColor;
+                ctx.shadowBlur = 5;
+                ctx.shadowColor = '#000';
+                ctx.fill();
+
+                // Detalles del centro
+                ctx.beginPath();
+                ctx.arc(0, 0, currentRadius * 0.28, 0, Math.PI * 2);
+                ctx.strokeStyle = '#5D4037';
+                ctx.lineWidth = 2 * this.scale;
+                ctx.stroke();
+
+                // Dibujar destellos de apertura
+                this.sparks.forEach(s => {
+                    if (s.life > 0) {
+                        ctx.save();
+                        ctx.globalAlpha = s.life;
+                        ctx.fillStyle = '#FFF59D';
+                        ctx.shadowBlur = 8;
+                        ctx.shadowColor = '#FFD700';
+                        ctx.beginPath();
+                        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+                });
+
+                ctx.restore();
+            }
+        }
+
+        function initScene() {
+            // Generar pétalos cayendo
+            petals = [];
+            for (let i = 0; i < 40; i++) {
+                petals.push(new Petal());
+            }
+
+            // Generar luciérnagas
+            fireflies = [];
+            for (let i = 0; i < 30; i++) {
+                fireflies.push(new Firefly());
+            }
+
+            // Crear Ramo / Jardín Central al fondo
+            createCentralBouquet();
+        }
+
+        function createCentralBouquet() {
+            centerBouquet = [];
+            const flowerCount = Math.min(Math.floor(width / 100), 7);
+            const startX = width / 2 - ((flowerCount - 1) * 45);
+
+            for (let i = 0; i < flowerCount; i++) {
+                const x = startX + i * 90 + (Math.random() * 20 - 10);
+                const y = height - 120 + (Math.random() * 30 - 15);
+                centerBouquet.push(new InteractiveFlower(x, y, true, 1.2));
+            }
+        }
+
+        // Recrear ramo en cambio de ventana
+        window.addEventListener('resize', () => {
+            createCentralBouquet();
+        });
+
+        function handleInteraction(e) {
+            // Evitar flor si se hace clic en botones UI
+            if (e.target.closest('button') || e.target.closest('#cardContent')) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+            const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+
+            interactiveFlowers.push(new InteractiveFlower(x, y - 20, false, 1.1));
+
+            // Limitar flores interactivas almacenadas para mantener excelente rendimiento
+            if (interactiveFlowers.length > 25) {
+                interactiveFlowers.shift();
+            }
+        }
+
+        window.addEventListener('click', handleInteraction);
+        window.addEventListener('touchstart', (e) => {
+            handleInteraction(e);
+        }, { passive: true });
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            // 1. Dibujar luciérnagas al fondo
+            fireflies.forEach(f => {
+                f.update();
+                f.draw();
+            });
+
+            // 2. Dibujar ramo de jardín central
+            centerBouquet.forEach(flower => {
+                flower.update();
+                flower.draw();
+            });
+
+            // 3. Dibujar flores creadas por el usuario
+            interactiveFlowers.forEach(flower => {
+                flower.update();
+                flower.draw();
+            });
+
+            // 4. Dibujar pétalos flotantes cayendo
+            petals.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        initScene();
+        animate();
+
+        const openCardBtn = document.getElementById('openCardBtn');
+        const closeCardBtn = document.getElementById('closeCardBtn');
+        const closeModalAction = document.getElementById('closeModalAction');
+        const cardModal = document.getElementById('cardModal');
+        const cardContent = document.getElementById('cardContent');
+
+        function openModal() {
+            cardModal.classList.remove('opacity-0', 'pointer-events-none');
+            cardModal.classList.add('opacity-100', 'pointer-events-auto');
+            cardContent.classList.remove('scale-90');
+            cardContent.classList.add('scale-100');
+        }
+
+        function closeModal() {
+            cardModal.classList.remove('opacity-100', 'pointer-events-auto');
+            cardModal.classList.add('opacity-0', 'pointer-events-none');
+            cardContent.classList.remove('scale-100');
+            cardContent.classList.add('scale-90');
+        }
+
+        openCardBtn.addEventListener('click', openModal);
+        closeCardBtn.addEventListener('click', closeModal);
+        closeModalAction.addEventListener('click', closeModal);
+
+        // Cerrar modal al hacer clic fuera del contenido
+        cardModal.addEventListener('click', (e) => {
+            if (e.target === cardModal) closeModal();
+        });
+
+        let audioCtx = null;
+        let isPlaying = false;
+        let melodyInterval = null;
+
+        const audioToggleBtn = document.getElementById('audioToggleBtn');
+        const audioIcon = document.getElementById('audioIcon');
+        const audioText = document.getElementById('audioText');
+
+        function playAmbientSound() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            // Notas pentatónicas suaves para melodía mágica relajante
+            const notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25]; // C, D, E, G, A, C
+
+            function playNote() {
+                if (!isPlaying) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                const freq = notes[Math.floor(Math.random() * notes.length)];
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 0.5);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3.5);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 3.6);
+            }
+
+            isPlaying = true;
+            melodyInterval = setInterval(playNote, 1200);
+            playNote();
+        }
+
+        function stopAmbientSound() {
+            isPlaying = false;
+            if (melodyInterval) clearInterval(melodyInterval);
+        }
+
+        audioToggleBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                stopAmbientSound();
+                audioIcon.className = 'fa-solid fa-music';
+                audioText.textContent = 'Música';
+                audioToggleBtn.classList.remove('bg-yellow-500/30');
+            } else {
+                playAmbientSound();
+                audioIcon.className = 'fa-solid fa-volume-high';
+                audioText.textContent = 'Sonando';
+                audioToggleBtn.classList.add('bg-yellow-500/30');
+            }
+        });
+    </script>
+</body>
+</html>
